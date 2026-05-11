@@ -21,6 +21,8 @@ import {
   Area
 } from 'recharts';
 import { formatCurrency, cn } from '../lib/utils';
+import { seedService } from '../services/seed';
+import { useAuth } from '../contexts/AuthContext';
 
 const data = [
   { name: 'Mon', value: 4000 },
@@ -52,8 +54,45 @@ const StatCard = ({ title, value, change, trend, sub }: any) => (
 );
 
 export const Overview: React.FC = () => {
+  const { user, isAdmin } = useAuth();
+  const [seeding, setSeeding] = React.useState(false);
+
+  const handleSeed = async () => {
+    if (!user) return;
+    setSeeding(true);
+    try {
+      await seedService.seedDemoData(user.uid);
+      window.location.reload(); // Refresh to show new data
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSeeding(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {isAdmin && (
+        <div className="bg-gold/10 border border-gold/20 p-4 rounded-xl flex items-center justify-between">
+          <div className="flex items-center gap-3">
+             <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-white">
+               <Activity className="w-5 h-5" />
+             </div>
+             <div>
+               <p className="text-xs font-bold text-slate-900 uppercase">Administrator Controls</p>
+               <p className="text-[10px] text-slate-500 font-medium">Database is currently empty. Initialize encrypted demo data for testing.</p>
+             </div>
+          </div>
+          <button 
+            onClick={handleSeed}
+            disabled={seeding}
+            className="px-4 py-2 bg-gold text-white text-[10px] font-bold rounded uppercase tracking-widest hover:bg-gold/90 transition-all disabled:opacity-50"
+          >
+            {seeding ? 'Initializing...' : 'Initialize Demo Environment'}
+          </button>
+        </div>
+      )}
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Total Deposits" value={formatCurrency(124802490)} change="12.4" trend="up" />
         <StatCard title="Active Loans" value="4,129" sub="Value: $42.5M" trend="neutral" />

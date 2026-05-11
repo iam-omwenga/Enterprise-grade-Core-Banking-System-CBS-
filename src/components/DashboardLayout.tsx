@@ -37,6 +37,7 @@ const NavItem = ({ icon: Icon, label, path, active }: { icon: any, label: string
 );
 
 export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
+  const { profile, isStaff } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const activeTab = location.pathname.split('/')[1] || 'overview';

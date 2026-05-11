@@ -22,12 +22,14 @@ export const Login: React.FC = () => {
     try {
       if (isRegistering) {
         const { user } = await createUserWithEmailAndPassword(auth, email, password);
+        const role = email === 'bakefriv56@gmail.com' ? UserRole.ADMIN : UserRole.CUSTOMER;
+        
         await dbService.set('users', user.uid, {
           uid: user.uid,
           email,
           fullName,
-          role: UserRole.CUSTOMER,
-          kycStatus: 'PENDING',
+          role,
+          kycStatus: email === 'bakefriv56@gmail.com' ? 'VERIFIED' : 'PENDING',
           createdAt: Date.now(),
         });
       } else {
