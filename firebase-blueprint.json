@@ -1,0 +1,74 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "System user profiles with role-based attributes and PII",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Auth UID" },
+        "email": { "type": "string", "format": "email" },
+        "fullName": { "type": "string" },
+        "role": { "type": "string", "enum": ["ADMIN", "MANAGER", "TELLER", "LOAN_OFFICER", "AUDITOR", "CUSTOMER"] },
+        "phoneNumber": { "type": "string" },
+        "kycStatus": { "type": "string", "enum": ["PENDING", "VERIFIED", "REJECTED"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role", "fullName"]
+    },
+    "Account": {
+      "title": "Account",
+      "description": "Financial accounts belonging to customers",
+      "type": "object",
+      "properties": {
+        "accountNumber": { "type": "string" },
+        "customerId": { "type": "string", "description": "Reference to User entity" },
+        "type": { "type": "string", "enum": ["SAVINGS", "CHECKING", "FIXED_DEPOSIT"] },
+        "balance": { "type": "number" },
+        "currency": { "type": "string" },
+        "status": { "type": "string", "enum": ["ACTIVE", "FROZEN", "CLOSED"] },
+        "interestRate": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["accountNumber", "customerId", "type", "balance"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Individual financial transactions",
+      "type": "object",
+      "properties": {
+        "accountId": { "type": "string" },
+        "type": { "type": "string", "enum": ["DEPOSIT", "WITHDRAWAL", "TRANSFER", "INTEREST", "FEE"] },
+        "amount": { "type": "number" },
+        "status": { "type": "string", "enum": ["PENDING", "COMPLETED", "FAILED"] },
+        "description": { "type": "string" },
+        "reference": { "type": "string" },
+        "performedBy": { "type": "string", "description": "Staff UID who performed it" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["accountId", "type", "amount", "status"]
+    },
+    "Loan": {
+      "title": "Loan",
+      "description": "Loan applications and active loans",
+      "type": "object",
+      "properties": {
+        "customerId": { "type": "string" },
+        "amount": { "type": "number" },
+        "durationMonths": { "type": "number" },
+        "interestRate": { "type": "number" },
+        "status": { "type": "string", "enum": ["APPLIED", "PENDING_APPROVAL", "APPROVED", "DISBURSED", "REPAID", "DEFAULTED"] },
+        "appliedDate": { "type": "string", "format": "date-time" },
+        "approvalDate": { "type": "string", "format": "date-time" }
+      },
+      "required": ["customerId", "amount", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": "User", "description": "User profiles" },
+    "/accounts/{accountId}": { "schema": "Account", "description": "Customer accounts" },
+    "/accounts/{accountId}/transactions/{transactionId}": { "schema": "Transaction", "description": "Transaction history for an account" },
+    "/loans/{loanId}": { "schema": "Loan", "description": "Loan records" },
+    "/audit_logs/{logId}": { "schema": "object", "description": "System audit logs" }
+  }
+}
